@@ -11,7 +11,8 @@ const progressBar = document.getElementById("progressBar");
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
 // Step 0: Store your API key here for reference and easy access.
-const API_KEY = "";
+const API_KEY =
+  "live_fL2Ibh3COwboCjEYmXgTNyJL1WBvB4hyldTPmJpQCj2NYK6vbYuqKJOfiCYuDB0C";
 
 /**
  * 1. Create an async function "initialLoad" that does the following:
