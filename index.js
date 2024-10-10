@@ -52,6 +52,54 @@ initialLoad();
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
 
+const breedSelect = document.getElementById('breedSelect');
+const carousel = document.getElementById('carousel');
+const infoDump = document.getElementById('infoDump');
+
+breedSelect.addEventListener('change', async () => {
+  const selectedBreedId = breedSelect.value;
+  const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_id=${selectedBreedId}&limit=10`);
+  const images = await response.json();
+
+  // Clear the carousel and infoDump
+  carousel.innerHTML = '';
+  infoDump.innerHTML = '';
+
+  images.forEach(image => {
+    const carouselItem = document.createElement('div');
+    carouselItem.classList.add('carousel-item');
+    const img = document.createElement('img');
+    img.src = image.url;
+    carouselItem.appendChild(img);
+    carousel.appendChild(carouselItem);
+  });
+
+  // Create an informational section within the infoDump element
+  const breedInfo = await fetch(`https://api.thecatapi.com/v1/breeds/${selectedBreedId}`);
+  const breedData = await breedInfo.json();
+  const infoSection = document.createElement('div');
+  infoSection.innerHTML = `
+    <h2>${breedData.name}</h2>
+    <p>${breedData.description}</p>
+    <p>Origin: ${breedData.origin}</p>
+    <p>Temperament: ${breedData.temperament}</p>
+  `;
+  infoDump.appendChild(infoSection);
+
+  // Restarting the carousel
+  const carouselItems = document.querySelectorAll('.carousel-item');
+  carouselItems.forEach((item, index) => {
+    item.classList.remove('active');
+    if (index === 0) {
+      item.classList.add('active');
+    }
+  });
+});
+
+initialLoad().then(() => {
+  breedSelect.dispatchEvent(new Event('change'));
+});
+
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
