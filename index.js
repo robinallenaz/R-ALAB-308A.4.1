@@ -1,13 +1,13 @@
 import * as Carousel from "./Carousel.js";
 import axios from "axios";
 
-// The breed selection input element.
+// breed selection
 const breedSelect = document.getElementById("breedSelect");
-// The information section div element.
+// information section
 const infoDump = document.getElementById("infoDump");
-// The progress bar div element.
+// progress bar
 const progressBar = document.getElementById("progressBar");
-// The get favourites button element.
+// get favourites button
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
 
 // Step 0: Store your API key here for reference and easy access.
