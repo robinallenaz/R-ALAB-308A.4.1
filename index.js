@@ -22,21 +22,20 @@ const API_KEY =
  *  - Each option should display text equal to the name of the breed.
  * This function should execute immediately.
  */
-async function initialLoad() {
-  const response = await fetch('https://api.thecatapi.com/v1/breeds');
-  const breeds = await response.json();
 
-  const breedSelect = document.getElementById('breedSelect');
-
-  breeds.forEach(breed => {
-    const option = document.createElement('option');
-    option.value = breed.id;
-    option.text = breed.name;
+(async function initialLoad() {
+  const breeds = await fetch("https://api.thecatapi.com/v1/breeds");
+  console.log(breeds);
+  const breedData = await breeds.json();
+  for (const obj of breedData) {
+    const option = document.createElement("option");
+    option.textContent = obj.name;
     breedSelect.appendChild(option);
-  });
-}
+  }
+  console.log(breedData);
+  selectBreed();
+})();
 
-initialLoad();
 /**
  * 2. Create an event handler for breedSelect that does the following:
  * - Retrieve information on the selected breed from the cat API using fetch().
@@ -51,55 +50,50 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
+breedSelect.addEventListener("change", selectBreed);
+// const carouselInner = document.querySelector("#carouselInner");
+async function selectBreed() {
+  const breedSelected = breedSelect.value;
+  const breeds = await fetch("https://api.thecatapi.com/v1/breeds");
+  const breedData = await breeds.json();
 
-const breedSelect = document.getElementById('breedSelect');
-const carousel = document.getElementById('carousel');
-const infoDump = document.getElementById('infoDump');
+  Carousel.clear();
 
-breedSelect.addEventListener('change', async () => {
-  const selectedBreedId = breedSelect.value;
-  const response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_id=${selectedBreedId}&limit=10`);
-  const images = await response.json();
+  const selectedBreed = breedData.find((breed) => breed.name === breedSelected);
 
-  // Clear the carousel and infoDump
-  carousel.innerHTML = '';
-  infoDump.innerHTML = '';
-
-  images.forEach(image => {
-    const carouselItem = document.createElement('div');
-    carouselItem.classList.add('carousel-item');
-    const img = document.createElement('img');
-    img.src = image.url;
-    carouselItem.appendChild(img);
-    carousel.appendChild(carouselItem);
+  // selectedBreedId = obj.id;
+  const breedInfo = await fetch(
+    `https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=${selectedBreed.id}`
+  );
+  const breedImages = await breedInfo.json();
+  console.log(breedImages);
+  breedImages.forEach((breed) => {
+    Carousel.appendCarousel(
+      Carousel.createCarouselItem(breed.url, selectedBreed.name, breed.id)
+    ); // Append new items to the carousel
   });
 
-  // Create an informational section within the infoDump element
-  const breedInfo = await fetch(`https://api.thecatapi.com/v1/breeds/${selectedBreedId}`);
-  const breedData = await breedInfo.json();
-  const infoSection = document.createElement('div');
-  infoSection.innerHTML = `
-    <h2>${breedData.name}</h2>
-    <p>${breedData.description}</p>
-    <p>Origin: ${breedData.origin}</p>
-    <p>Temperament: ${breedData.temperament}</p>
+  createBreedInfo(selectedBreed);
+  // Restart the carousel after loading new images
+  Carousel.start();
+}
+
+function createBreedInfo(breed) {
+  infoDump.innerHTML = ""; // Clear previous breed info
+
+  const breedInfo = document.createElement("div");
+  breedInfo.classList.add("breed-info");
+
+  breedInfo.innerHTML = `
+    <h2>${breed.name}</h2>
+    <p><strong>Origin:</strong> ${breed.origin}</p>
+    <p><strong>Temperament:</strong> ${breed.temperament}</p>
+    <p><strong>Description:</strong> ${breed.description}</p>
+    <p><strong>Life Span:</strong> ${breed.life_span} years</p>
   `;
-  infoDump.appendChild(infoSection);
 
-  // Restarting the carousel
-  const carouselItems = document.querySelectorAll('.carousel-item');
-  carouselItems.forEach((item, index) => {
-    item.classList.remove('active');
-    if (index === 0) {
-      item.classList.add('active');
-    }
-  });
-});
-
-initialLoad().then(() => {
-  breedSelect.dispatchEvent(new Event('change'));
-});
-
+  infoDump.appendChild(breedInfo);
+}
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
  */
